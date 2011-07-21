@@ -1,0 +1,42 @@
+Activerecord-cloneable
+======================
+
+This is a quick tool to help clone active records.
+
+Let's say you have a great rails app, and you want to quickly add clone
+functionality to an object.  Use this.
+
+Example
+=======
+
+Basic:
+
+cloned_record = record.clone_record
+
+By default, we'll look at belongs to relations, and clone those to.  Often,
+that's not desireable.  We might want to share some of the parents with our
+clone.
+
+Then, 
+cloned_record = record.clone_record( :shared_parents => [:belongs_to_association_name]
+
+We might want to set up some attributes on our cloned record.
+
+cloned_record = record.clone_record( :attributes => { :name => "Ima Clone" } )
+
+Finally, everyone knows that clones you cannot tell apart are a plot device for
+a scifi movie.  Therefore, by default, if a name or title attribute is present,
+it's marked to indicate that the cloned object is a copy.  If you have another
+string field that you want to indicate as such, pass them in:
+
+cloned_record = record.clone_record( :name_fields => [ :name_title] )
+
+
+Disclaimer
+==========
+
+This scratches an itch for me.  I don't know if it will scratch an itch for you.
+It might ruin your day -- or worse.  I haven't tested this nearly as well as I
+should.  If you send in problem reports, I'll try and fix them.  No waranties.
+
+Copyright (c) 2011 Adam Palmblad, apalmblad@gmail.com, released under the MIT license
