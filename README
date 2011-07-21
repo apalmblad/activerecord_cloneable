@@ -6,6 +6,14 @@ This is a quick tool to help clone active records.
 Let's say you have a great rails app, and you want to quickly add clone
 functionality to an object.  Use this.
 
+INSTALL
+=======
+Bundler:
+
+Into your gemfile put:
+gem 'activerecord_cloneable', :git => "git://github.com/apalmblad/activerecord_cloneable.git"
+
+
 Example
 =======
 
