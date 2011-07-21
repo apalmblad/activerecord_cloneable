@@ -12,7 +12,10 @@ class ActiveRecordCloneableTest < ActiveSupport::TestCase
     cloneable
     has_many :apples
   end
-  test "the truth" do
+  class NonCloneableThing < ActiveRecord::Base
+    belongs_to :apple
+  end
+  test "Basic test" do
     original = Banana.new
     original.save
     a = original.apples.build
@@ -22,6 +25,16 @@ class ActiveRecordCloneableTest < ActiveSupport::TestCase
     assert( original.apples.any? )
     clone = original.clone_record
     clone.save!
+    assert( clone.apples.any? )
+  end
+  def test_with_non_cloneable_things
+    Apple.has_many( :non_cloneable_things )
+    original = Banana.new
+    original.save
+    a = original.apples.create
+    a.non_cloneable_things.create
+    original.save
+    clone = original.clone_record( :skipped_child_relations => [{ :apples => :non_cloneable_things}] )
     assert( clone.apples.any? )
   end
 end

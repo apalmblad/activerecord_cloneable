@@ -45,9 +45,19 @@ module ActiveRecord::Cloneable
         end
       end
     end
+    def clone_child_relation?( relation_name, skipped_child_relations )
+      relation_name = relation_name.to_sym
+      skipped_child_relations.each do |relation|
+        unless relation.is_a?( Hash )
+          return false if relation == relation_name
+        end
+      end
+      return true
+    end
     # ---------------------------------------------------------------------- clone
     def clone_record( args = {} )
       args[:shared_parent_relations] ||= []
+      args[:skipped_child_relations] ||= []
       args[:cloned_parents] ||= []
       args[:skipped_children] ||= []
       args[:attributes] ||={}
@@ -64,13 +74,15 @@ module ActiveRecord::Cloneable
 
       ((data[:has_many] || []) + (data[:has_and_belongs_to_many]||[]) + (data[:has_one]||[]) ).each do |child_relation|
         next if child_relation.through_reflection
+        next if !clone_child_relation?( child_relation.name, args[:skipped_child_relations] )
         kids = send( child_relation.name )
         next if kids.nil?
         records = kids.find( :all )
         records.each do |child_record|
           next if args[:skipped_children].include?( child_record )
           cloned_child_record = kids.build
-          child_args = { :cloned_parents => args[:cloned_parents] + [self], :attributes => {}, :object => cloned_child_record }
+          child_args = { :cloned_parents => args[:cloned_parents] + [self], :attributes => {}, :object => cloned_child_record,
+              :skipped_child_relations => args[:skipped_child_relations].find_all{ |x| x.is_a?( Hash ) && x[child_relation.name.to_sym]  }.map{ |x| x.values }.flatten }
           #if child_relation.macro == :has_many ||child_relation.macro  == :has_one
           #  child_args[:attributes][child_relation.primary_key_name.to_sym] = nil
           #end
