@@ -10,8 +10,18 @@ INSTALL
 =======
 Bundler:
 
-Into your gemfile put:
-gem 'activerecord_cloneable', :git => "git://github.com/apalmblad/activerecord_cloneable.git"
+Into your Gemfile put:
+gem 'activerecord_cloneable', :git => "git://github.com/apalmblad/activerecord_cloneable.git",
+    :require => 'active_record/cloneable'
+
+In initialize code, do:
+
+ActiveRecord::Base.send( :include, ActiveRecord::Cloneable )
+
+In each of the models that you want to clone, add in:
+class Record < ActiveRecord::Base
+  cloneable
+end
 
 
 Example
@@ -22,7 +32,7 @@ Basic:
 cloned_record = record.clone_record
 
 By default, we'll look at belongs to relations, and clone those to.  Often,
-that's not desireable.  We might want to share some of the parents with our
+that's not desirable.  We might want to share some of the parents with our
 clone.
 
 Then, 
@@ -45,6 +55,6 @@ Disclaimer
 
 This scratches an itch for me.  I don't know if it will scratch an itch for you.
 It might ruin your day -- or worse.  I haven't tested this nearly as well as I
-should.  If you send in problem reports, I'll try and fix them.  No waranties.
+should.  If you send in problem reports, I'll try and fix them.  No warranties.
 
 Copyright (c) 2011 Adam Palmblad, apalmblad@gmail.com, released under the MIT license
