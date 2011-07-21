@@ -21,7 +21,7 @@ module ActiveRecord::Cloneable
         end
       end
       args[:attributes].each_pair do |k,v|
-        cloned_record.send( :write_attribute, k, v )
+        cloned_record.send( "#{k}=", v )
       end
       # Set the name or title field to be the existing value + (copy)
       ( args[:name_fields] || [:name,:title] ).each do |name_attr|
