@@ -46,7 +46,7 @@ module ActiveRecord::Cloneable
           rec = obj.clone_record( :skipped_children => args[:skipped_children] + [self],
               :skipped_child_relations => find_applicable_clone_args( parent_relation.name, args[:skipped_child_relations] ),
               :skipped_parent_relations => find_applicable_clone_args( parent_relation.name, args[:skipped_parent_relations] ),
-              :shared_parent_relations => find_applicable_clone_args( parent_relation.name, args[:shared_parent_relations] ),
+              :shared_parent_relations => find_applicable_clone_args( parent_relation.name, args[:shared_parent_relations] )
             )
           cloned_record.send( "#{parent_relation.name}=", rec )
         end
