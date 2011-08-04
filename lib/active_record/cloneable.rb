@@ -31,7 +31,7 @@ module ActiveRecord::Cloneable
           break if args[:name_fields].nil?
         end
       end
-      cloned_record.save!
+      #cloned_record.save
     end
     # ----------------------------------------------- clone_bleongs_to_relations
     def clone_belongs_to_relations( relations, cloned_record, args )
