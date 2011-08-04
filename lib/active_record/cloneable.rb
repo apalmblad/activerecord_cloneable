@@ -102,7 +102,7 @@ module ActiveRecord::Cloneable
           next if args[:skipped_children].include?( child_record )
           cloned_child_record = kids.build
           child_args = { :cloned_parents => args[:cloned_parents] + [self], :attributes => {}, :object => cloned_child_record,
-              :skipped_child_relations => find_applicable_clone_args( child_relation.name, args[:skipped_child_relations] }
+              :skipped_child_relations => find_applicable_clone_args( child_relation.name, args[:skipped_child_relations] ) }
           #if child_relation.macro == :has_many ||child_relation.macro  == :has_one
           #  child_args[:attributes][child_relation.primary_key_name.to_sym] = nil
           #end
