@@ -10,6 +10,9 @@ ActiveRecord::Base.establish_connection(:adapter  => 'mysql',
         :username => 'root' )
 class DoSetup < ActiveRecord::Migration
   def self.up
+    create_table :breads do |t|
+      t.column :banana_id, :integer
+    end
     drop_table :non_cloneable_things
     create_table :non_cloneable_things do |t|
       t.column :apple_id,:integer

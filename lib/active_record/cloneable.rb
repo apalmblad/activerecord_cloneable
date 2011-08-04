@@ -4,6 +4,7 @@ module ActiveRecord::Cloneable
     base.extend( ClassMethods )
   end
   module ClassMethods
+    # ---------------------------------------------------------------- cloneable
     def cloneable
       # HACK: check that this best way
       class_eval <<-EOV
@@ -73,7 +74,7 @@ module ActiveRecord::Cloneable
       clone_belongs_to_relations( data[:belongs_to], cloned_record, args )
       clone_basic_details( cloned_record, belongs_to_keys, args )
 
-      ((data[:has_many] || []) + (data[:has_and_belongs_to_many]||[]) + (data[:has_one]||[]) ).each do |child_relation|
+      ((data[:has_many] || []) + (data[:has_and_belongs_to_many]||[])  ).each do |child_relation|
         next if child_relation.through_reflection
         next if !clone_child_relation?( child_relation.name, args[:skipped_child_relations] )
         kids = send( child_relation.name )
@@ -90,6 +91,19 @@ module ActiveRecord::Cloneable
           cloned_child_record = child_record.clone_record( child_args )
           cloned_record.send( child_relation.name ) << cloned_child_record
         end
+      end
+      ( data[:has_one] || []).each do |child_relation|
+        next if child_relation.through_reflection
+        next if !clone_child_relation?( child_relation.name, args[:skipped_child_relations] )
+        kid = send( child_relation.name )
+        next if kid.nil?
+        next if args[:skipped_children].include?( kid )
+        cloned_child_record = kid.build
+        child_args = { :cloned_parents => args[:cloned_parents] + [self],
+            :attributes => {}, :object => cloned_child_record,
+            :skipped_child_relations => args[:skipped_child_relations].find_all{ |x| x.is_a?( Hash ) && x[child_relation.name.to_sym]  }.map{ |x| x.values }.flatten }
+        cloned_child_record = child_record.clone_record( child_args )
+        cloned_record.send( "#{child_relation.name}=",  cloned_child_record )
       end
       return cloned_record
     end
