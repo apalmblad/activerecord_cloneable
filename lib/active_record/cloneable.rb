@@ -55,6 +55,7 @@ module ActiveRecord::Cloneable
     # ----------------------------------------------- find_applicable_clone_args
     def find_applicable_clone_args( relation_name, args )
       relation_name = relation_name.to_sym
+      return nil if args.nil?
       r_val = args.map do |x|
         if x.is_a?( Hash )
           x[relation_name]
