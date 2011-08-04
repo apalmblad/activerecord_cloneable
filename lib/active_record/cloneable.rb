@@ -45,6 +45,7 @@ module ActiveRecord::Cloneable
         end
       end
     end
+    # ---------------------------------------------------- clone_child_relation?
     def clone_child_relation?( relation_name, skipped_child_relations )
       relation_name = relation_name.to_sym
       skipped_child_relations.each do |relation|
