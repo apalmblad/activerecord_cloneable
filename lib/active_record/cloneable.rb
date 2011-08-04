@@ -102,7 +102,7 @@ module ActiveRecord::Cloneable
         child_args = { :cloned_parents => args[:cloned_parents] + [self],
             :attributes => {}, :object => cloned_child_record,
             :skipped_child_relations => args[:skipped_child_relations].find_all{ |x| x.is_a?( Hash ) && x[child_relation.name.to_sym]  }.map{ |x| x.values }.flatten }
-        cloned_child_record = child_record.clone_record( child_args )
+        cloned_child_record = kid.clone_record( child_args )
         cloned_record.send( "#{child_relation.name}=",  cloned_child_record )
       end
       return cloned_record
