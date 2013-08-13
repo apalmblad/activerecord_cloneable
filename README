@@ -52,7 +52,7 @@ Gotta go deep? Want to clone something from a parent but not it's children?
 cloned_record = record.clone_record( :skipped_child_relations => [{ :child_1 => :logs} ]] )
 
 Finally, everyone knows that clones you cannot tell apart are a plot device for
-a scifi movie.  Therefore, by default, if a name or title attribute is present,
+a formulaic scifi movie.  Therefore, by default, if a name or title attribute is present,
 it's marked to indicate that the cloned object is a copy.  If you have another
 string field that you want to indicate as such, pass them in:
 
