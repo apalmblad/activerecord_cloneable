@@ -1,2 +1,5 @@
+0.1.2
+  - call methods when assinging to catch the case of any behaviour on variable assignment
+
 0.1.1
  - better messages when parent objects not marked as cloneable

@@ -18,7 +18,12 @@ module ActiveRecord::Cloneable
       # assign the attributes, minus any assigned or any from a belongs_to relation
       self.class.content_columns.each do |column|
         if !args[:attributes].has_key?( column.name.to_sym ) && !belongs_to_keys.include?( column.name.to_sym )
-          cloned_record.write_attribute( column.name, read_attribute( column.name ) )
+          m = "#{column.name}=".to_sym
+          if cloned_record.respond_to?( m )
+            cloned_record.send( m, read_attribute( column.name ) )
+          else
+            cloned_record.write_attribute( column.name, read_attribute( column.name ) )
+          end
         end
       end
       args[:attributes].each_pair do |k,v|
