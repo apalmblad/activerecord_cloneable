@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'activerecord_cloneable'
-  s.version = '0.1.2'
+  s.version = '0.1.3'
   s.summary = "A library to help clone active records - that is, generate active new record objects with the data copied from an existing record."
   s.authors = ["Adam Palmblad"]
   s.email = 'apalmblad@gmail.com'

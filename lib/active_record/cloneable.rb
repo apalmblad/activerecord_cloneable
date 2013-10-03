@@ -116,8 +116,12 @@ module ActiveRecord::Cloneable
           #if child_relation.macro == :has_many ||child_relation.macro  == :has_one
           #  child_args[:attributes][child_relation.primary_key_name.to_sym] = nil
           #end
-          cloned_child_record = child_record.clone_record( child_args )
-          cloned_record.send( child_relation.name ) << cloned_child_record
+          begin
+            cloned_child_record = child_record.clone_record( child_args )
+            cloned_record.send( child_relation.name ) << cloned_child_record
+          rescue NoMethodError => e
+            raise "#{child_record.class.name} objects do not know how to clone themselves; they should be marked as cloneable or skipped. (#{self.class.name} / #{child_relation.name}"
+          end
         end
       end
       ( data[:has_one] || []).each do |child_relation|
@@ -130,8 +134,12 @@ module ActiveRecord::Cloneable
         child_args = { :cloned_parents => args[:cloned_parents] + [self],
             :attributes => {}, :object => cloned_child_record,
             :skipped_child_relations => args[:skipped_child_relations].find_all{ |x| x.is_a?( Hash ) && x[child_relation.name.to_sym]  }.map{ |x| x.values }.flatten }
-        cloned_child_record = kid.clone_record( child_args )
-        cloned_record.send( "#{child_relation.name}=",  cloned_child_record )
+        begin
+          cloned_child_record = kid.clone_record( child_args )
+          cloned_record.send( "#{child_relation.name}=",  cloned_child_record )
+        rescue NoMethodError => e
+          raise "#{kid.class.name} objects do not know how to clone themselves; they should be marked as cloneable or skipped. (#{self.class.name} / #{child_relation.name}"
+        end
       end
       return cloned_record
     end
