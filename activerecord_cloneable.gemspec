@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'activerecord_cloneable'
-  s.version = '0.2.1'
+  s.version = '0.2.2'
   s.summary = "A library to help clone active records - that is, generate active new record objects with the data copied from an existing record."
   s.authors = ["Adam Palmblad"]
   s.email = 'apalmblad@gmail.com'
@@ -12,5 +12,5 @@ Gem::Specification.new do |s|
   s.description = %q{A tool to help with cloning of active record objects.}
   s.files= ['MIT-LICENSE', 'README', 'Rakefile', 'activerecord_cloneable.gemspec',
       'test/activerecord_cloneable_test.rb', 'test/test_helper.rb',
-      'lib/active_record/cloneable.rb']
+      'lib/active_record/cloneable.rb', 'lib/activerecord_cloneable.rb']
 end

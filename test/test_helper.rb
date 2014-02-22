@@ -3,7 +3,7 @@ require 'test/unit'
 require 'active_support'
 require 'active_support/test_case'
 require 'active_record'
-require 'active_record/cloneable'
+require 'activerecord_cloneable'
 ActiveRecord::Base.send( :include, ActiveRecord::Cloneable )
 ActiveRecord::Base.establish_connection(:adapter => "sqlite3", 
                                        :database => ':memory:' )
