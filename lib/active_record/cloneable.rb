@@ -97,7 +97,7 @@ module ActiveRecord::Cloneable
         data[v.macro] ||= []
         data[v.macro] << v
       end
-      belongs_to_keys = ( data[:belongs_to] || [] ).map{ |x| x.primary_key_name.to_sym }
+      belongs_to_keys = ( data[:belongs_to] || [] ).map{ |x| x.association_primary_key }
 
       clone_belongs_to_relations( data[:belongs_to], cloned_record, args )
       clone_basic_details( cloned_record, belongs_to_keys, args )
