@@ -9,6 +9,7 @@ Gem::Specification.new do |s|
   s.homepage = 'http://github.com/apalmblad/activerecord_cloneble'
   s.add_dependency( "activerecord", "<4")
   s.add_development_dependency "sqlite3"
+  s.add_development_dependency "minitest", '> 5'
   s.description = %q{A tool to help with cloning of active record objects.}
   s.files= ['MIT-LICENSE', 'README', 'Rakefile', 'activerecord_cloneable.gemspec',
       'test/activerecord_cloneable_test.rb', 'test/test_helper.rb',
