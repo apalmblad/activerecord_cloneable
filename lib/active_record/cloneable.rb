@@ -54,7 +54,7 @@ module ActiveRecord::Cloneable
                 :skipped_parent_relations => find_applicable_clone_args( parent_relation.name, args[:skipped_parent_relations] ),
                 :shared_parent_relations => find_applicable_clone_args( parent_relation.name, args[:shared_parent_relations] )
               )
-          rescue NoMethodError => e
+          rescue NoMethodError
             raise "#{obj.class.name} objects do not know how to clone themselves; they should be marked as cloneable or skipped."
           end
           cloned_record.send( "#{parent_relation.name}=", rec )
@@ -119,7 +119,7 @@ module ActiveRecord::Cloneable
           begin
             cloned_child_record = child_record.clone_record( child_args )
             cloned_record.send( child_relation.name ) << cloned_child_record
-          rescue NoMethodError => e
+          rescue NoMethodError
             raise "#{child_record.class.name} objects do not know how to clone themselves; they should be marked as cloneable or skipped. (#{self.class.name} / #{child_relation.name}"
           end
         end
@@ -137,7 +137,7 @@ module ActiveRecord::Cloneable
         begin
           cloned_child_record = kid.clone_record( child_args )
           cloned_record.send( "#{child_relation.name}=",  cloned_child_record )
-        rescue NoMethodError => e
+        rescue NoMethodError
           raise "#{kid.class.name} objects do not know how to clone themselves; they should be marked as cloneable or skipped. (#{self.class.name} / #{child_relation.name}"
         end
       end
