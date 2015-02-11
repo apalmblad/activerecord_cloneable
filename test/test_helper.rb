@@ -3,7 +3,7 @@ require 'minitest/autorun'
 require 'active_support'
 require 'active_support/test_case'
 require 'active_record'
-require 'activerecord_cloneable'
+require File.join( File.expand_path( File.dirname( __FILE__ ) ), '../lib/activerecord_cloneable' )
 ActiveRecord::Base.send( :include, ActiveRecord::Cloneable )
 ActiveRecord::Base.establish_connection(:adapter => "sqlite3", 
                                        :database => ':memory:' )
