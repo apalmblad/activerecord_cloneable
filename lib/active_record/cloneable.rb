@@ -107,8 +107,7 @@ module ActiveRecord::Cloneable
         next if !clone_child_relation?( child_relation.name, args[:skipped_child_relations] )
         kids = send( child_relation.name )
         next if kids.nil?
-        records = kids.find( :all )
-        records.each do |child_record|
+        kids.each do |child_record|
           next if args[:skipped_children].include?( child_record )
           cloned_child_record = kids.build
           child_args = { :cloned_parents => args[:cloned_parents] + [self], :attributes => {}, :object => cloned_child_record,
