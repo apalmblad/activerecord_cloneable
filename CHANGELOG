@@ -1,3 +1,5 @@
+0.3.1
+  - bump support for rails 4.2
 0.1.2
   - call methods when assinging to catch the case of any behaviour on variable assignment
 
