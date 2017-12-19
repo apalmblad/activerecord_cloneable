@@ -45,19 +45,25 @@ module ActiveRecord::Cloneable
         obj = send( parent_relation.name )
         next if obj.nil?
         next if args[:skipped_children].include?( obj )
+        args[:skipped_children] += [ obj ]
         if args[:shared_parent_relations].include?( parent_relation.name.to_sym )
           cloned_record.send( "#{parent_relation.name}=", obj )
         elsif !args[:cloned_parents].include?( obj )
           # We don't know what the parent calls this child.
           begin
-            rec = obj.clone_record( skipped_children: args[:skipped_children] + [self],
+            rec = obj.clone_record( skipped_children: args[:skipped_children],
                 cloned_parents: args[:cloned_parents] + [self],
+                stack: args[:stack] + [ parent_relation.name ],
                 skipped_child_relations: find_applicable_clone_args( parent_relation.name, args[:skipped_child_relations] ),
                 skipped_parent_relations: find_applicable_clone_args( parent_relation.name, args[:skipped_parent_relations] ),
                 shared_parent_relations: find_applicable_clone_args( parent_relation.name, args[:shared_parent_relations] )
               )
-          rescue NoMethodError
-            raise "#{obj.class.name} objects do not know how to clone themselves; they should be marked as cloneable or skipped."
+          rescue NoMethodError => ex
+            if ex.name.to_sym == :clone_record
+              raise "#{obj.class.name} objects do not know how to clone themselves; they should be marked as cloneable or skipped."
+            else
+              raise ex
+            end
           end
           cloned_record.send( "#{parent_relation.name}=", rec )
         end
@@ -74,7 +80,7 @@ module ActiveRecord::Cloneable
           nil
         end
       end
-      r_val.flatten
+      r_val.flatten.compact
     end
     # ---------------------------------------------------- clone_child_relation?
     def clone_child_relation?( relation_name, skipped_child_relations )
@@ -91,8 +97,9 @@ module ActiveRecord::Cloneable
       args[:shared_parent_relations] ||= []
       args[:skipped_child_relations] ||= []
       args[:cloned_parents] ||= []
-      args[:skipped_children] ||= []
+      args[:skipped_children] ||= [self]
       args[:attributes] ||={}
+      args[:stack] ||= []
       cloned_record = args[:object] || self.class.new
       data = {}
       self.class.reflections.each do |k,v|
@@ -107,13 +114,20 @@ module ActiveRecord::Cloneable
       ((data[:has_many] || []) + (data[:has_and_belongs_to_many]||[])  ).each do |child_relation|
         next if child_relation.through_reflection
         next if !clone_child_relation?( child_relation.name, args[:skipped_child_relations] )
-        kids = send( child_relation.name )
+        kids = send( child_relation.name ).to_a
         next if kids.nil?
         kids.each do |child_record|
           next if args[:skipped_children].include?( child_record )
-          cloned_child_record = kids.build
-          child_args = { cloned_parents: args[:cloned_parents] + [self], attributes: {}, object: cloned_child_record,
-              skipped_child_relations: find_applicable_clone_args( child_relation.name, args[:skipped_child_relations] ) }
+          args[:skipped_children] += [child_record]
+          cloned_child_record = send( child_relation.name ).build
+          child_args = { cloned_parents: args[:cloned_parents] + [self],
+                         attributes: {},
+                         stack: args[:stack] + [ child_relation.name ],
+                         object: cloned_child_record,
+                         skipped_children: args[:skipped_children],
+                         skipped_parent_relations: find_applicable_clone_args( child_relation.name, args[:skipped_parent_relations] ),
+                         shared_parent_relations: find_applicable_clone_args( child_relation.name, args[:shared_parent_relations] ),
+                         skipped_child_relations: find_applicable_clone_args( child_relation.name, args[:skipped_child_relations] ) }
           #if child_relation.macro == :has_many ||child_relation.macro  == :has_one
           #  child_args[:attributes][child_relation.primary_key_name.to_sym] = nil
           #end
@@ -131,15 +145,19 @@ module ActiveRecord::Cloneable
         kid = send( child_relation.name )
         next if kid.nil?
         next if args[:skipped_children].include?( kid )
+        args[:skipped_children] += [kid]
         cloned_child_record = kid.build
         child_args = { cloned_parents: args[:cloned_parents] + [self],
-            attributes: {}, object: cloned_child_record,
-            skipped_child_relations: args[:skipped_child_relations].find_all{ |x| x.is_a?( Hash ) && x[child_relation.name.to_sym]  }.map{ |x| x.values }.flatten }
+                       attributes: {},
+                       object: cloned_child_record,
+                       skipped_children: args[:skipped_children],
+                       stack: args[:stack] + [ child_relation.name ] ,
+                       skipped_child_relations: args[:skipped_child_relations].find_all{ |x| x.is_a?( Hash ) && x[child_relation.name.to_sym]  }.map{ |x| x.values }.flatten }
         begin
           cloned_child_record = kid.clone_record( child_args )
           cloned_record.send( "#{child_relation.name}=",  cloned_child_record )
         rescue NoMethodError
-          raise "#{kid.class.name} objects do not know how to clone themselves; they should be marked as cloneable or skipped. (#{self.class.name} / #{child_relation.name}"
+          raise "#{kid.class.name} objects do not know how to clone themselves; they should be marked as cloneable or skipped. (#{self.class.name} / #{child_relation.name} -- #{args[:stack].inspect}"
         end
       end
       return cloned_record

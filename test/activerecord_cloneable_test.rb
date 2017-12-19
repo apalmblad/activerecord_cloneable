@@ -5,14 +5,23 @@ class ActiveRecordCloneableTest < ActiveSupport::TestCase
   class Apple < ActiveRecord::Base
     cloneable
     belongs_to :banana
+    belongs_to :apple_variety
     validates_presence_of :banana
     validates_associated :banana
+  end
+  class AppleVariety
+    belongs
+    
+  end
+  class FruitBasket
+    
   end
   class Banana < ActiveRecord::Base
     cloneable
     has_many :apples
     has_one :bread
   end
+
   class NonCloneableThing < ActiveRecord::Base
     belongs_to :apple
   end
@@ -36,8 +45,8 @@ class ActiveRecordCloneableTest < ActiveSupport::TestCase
     Apple.has_many( :non_cloneable_things )
     original = Banana.new
     original.save
-    a = original.apples.create
-    a.non_cloneable_things.create
+    a = original.apples.create!
+    a.non_cloneable_things.create!
     original.save
     clone = original.clone_record( :skipped_child_relations => [{ :apples => :non_cloneable_things}] )
     assert( clone.apples.any? )
