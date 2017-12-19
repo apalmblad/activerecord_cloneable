@@ -59,11 +59,7 @@ module ActiveRecord::Cloneable
                 shared_parent_relations: find_applicable_clone_args( parent_relation.name, args[:shared_parent_relations] )
               )
           rescue NoMethodError => ex
-            if ex.name.to_sym == :clone_record
-              raise "#{obj.class.name} objects do not know how to clone themselves; they should be marked as cloneable or skipped."
-            else
-              raise ex
-            end
+            handle_cloneable_exception(ex, "#{obj.class.name} objects do not know how to clone themselves; they should be marked as cloneable or skipped.")
           end
           cloned_record.send( "#{parent_relation.name}=", rec )
         end
@@ -134,8 +130,8 @@ module ActiveRecord::Cloneable
           begin
             cloned_child_record = child_record.clone_record( child_args )
             cloned_record.send( child_relation.name ) << cloned_child_record
-          rescue NoMethodError
-            raise "#{child_record.class.name} objects do not know how to clone themselves; they should be marked as cloneable or skipped. (#{self.class.name} / #{child_relation.name}"
+          rescue NoMethodError => ex
+            handle_cloneable_exception(ex, "#{child_record.class.name} objects do not know how to clone themselves; they should be marked as cloneable or skipped. (#{self.class.name} / #{child_relation.name}")
           end
         end
       end
@@ -156,11 +152,20 @@ module ActiveRecord::Cloneable
         begin
           cloned_child_record = kid.clone_record( child_args )
           cloned_record.send( "#{child_relation.name}=",  cloned_child_record )
-        rescue NoMethodError
-          raise "#{kid.class.name} objects do not know how to clone themselves; they should be marked as cloneable or skipped. (#{self.class.name} / #{child_relation.name} -- #{args[:stack].inspect}"
+        rescue NoMethodError => ex
+          handle_cloneable_exception(ex, "#{kid.class.name} objects do not know how to clone themselves; they should be marked as cloneable or skipped. (#{self.class.name} / #{child_relation.name} -- #{args[:stack].inspect}")
         end
       end
       return cloned_record
     end
+
+    def handle_cloneable_exception(ex, msg)
+      if ex.name.to_sym == :clone_record
+        raise msg
+      else
+        raise ex
+      end
+    end
+
   end
 end
